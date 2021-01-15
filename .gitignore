@@ -1,0 +1,11 @@
+*.blend
+*.meta
+*.asset
+*.mat
+*.preset
+*.unity
+Library/
+Logs/
+Packages/
+ProjectSettings/
+Temp/
