@@ -9,3 +9,6 @@ Logs/
 Packages/
 ProjectSettings/
 Temp/
+obj/
+*.csproj
+*.sln
