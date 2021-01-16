@@ -141,7 +141,7 @@ public class FPSController : MonoBehaviour
 			if (currentPhoneJitter >= phoneJitterRange || currentPhoneJitter <= -phoneJitterRange)
 				phoneJitterIntensity = -phoneJitterIntensity;
 
-			currentPhoneJitter += phoneJitterIntensity * Time.deltaTime * (isRunning ? runBobMultiplier : 1);
+			currentPhoneJitter += phoneJitterIntensity * Time.deltaTime * runBobMultiplier;
 			currentPhoneJitter = Mathf.Clamp(currentPhoneJitter, -phoneJitterRange, phoneJitterRange);
 			phone.ViewShift(xRotation, currentPhoneJitter, currentBobIntensity * phoneBobMultiplier);
 		}
