@@ -15,6 +15,7 @@ public class PhoneOS : MonoBehaviour
 
 	public float currentBattery;
 
+	bool isActive = true;
 	bool isDead = false;
 
 	BatteryManager batteryManager;
@@ -26,6 +27,16 @@ public class PhoneOS : MonoBehaviour
 	}
 
 	private void Update()
+	{
+		if (isActive)
+			DrainBattery();
+		if (isDead)
+			Destroy(GetComponentInChildren<Text>());
+	}
+
+	public bool IsDead() => isDead;
+
+	private void DrainBattery()
 	{
 		currentBattery -= batteryDrainRate * Time.deltaTime;
 		currentBattery = Mathf.Clamp(currentBattery, 0, batteryMax);
@@ -52,5 +63,6 @@ public class PhoneOS : MonoBehaviour
 		// TODO, make this check for activity, IE script a toggle for turning the screen off
 		// so that we don't get out of sync calls
 		offScreen.gameObject.SetActive(!offScreen.gameObject.activeSelf);
+		isActive = !isActive;
 	}
 }

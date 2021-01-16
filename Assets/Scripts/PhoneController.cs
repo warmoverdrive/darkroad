@@ -89,6 +89,12 @@ public class PhoneController : MonoBehaviour
 
 	private void Flashlight()
 	{
+		if (phoneOS.IsDead())
+		{
+			flashlight.gameObject.SetActive(false);
+			lightOn = false;
+			return;
+		}
 		if (Input.GetButtonDown("Left Click"))
 		{
 			lightOn = !lightOn;
