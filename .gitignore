@@ -12,3 +12,6 @@ Temp/
 obj/
 *.csproj
 *.sln
+*.renderTexture
+*.png
+*.suo

@@ -4,26 +4,28 @@ using UnityEngine;
 
 public class FPSController : MonoBehaviour
 {
-    // Parameters ----------------------
-    [Header("Movement")]
-    [SerializeField]
-    float moveSpeed = 2;
-    [SerializeField]
-    float runSpeed = 5;
-    [SerializeField]
-    float mass = 2;
-    [SerializeField]
-    LayerMask groundMask;
+	// Parameters ----------------------
+	[Header("Movement")]
+	[SerializeField]
+	float moveSpeed = 2;
+	[SerializeField]
+	float runSpeed = 5;
+	[SerializeField]
+	float mass = 2;
+	[SerializeField]
+	LayerMask groundMask;
 
-    [Header("View")]
-    [SerializeField]
-    float viewSensitivity = 400f;
-    [SerializeField]
-    float baseFOV = 60;
-    [SerializeField]
-    float zoomFOV = 30;
-    [SerializeField]
-    float zoomTime = 0.5f;
+	[Header("View")]
+	[SerializeField]
+	GameObject headObject;
+	[SerializeField]
+	float viewSensitivity = 400f;
+	[SerializeField]
+	float baseFOV = 60;
+	[SerializeField]
+	float zoomFOV = 30;
+	[SerializeField]
+	float zoomTime = 0.5f;
 
 	[Header("HeadBob")]
 	[SerializeField]
@@ -32,39 +34,50 @@ public class FPSController : MonoBehaviour
 	float bobIntensity = 0.5f;
 	[SerializeField]
 	float runBobMultiplier = 2f;
+	[SerializeField]
+	GameObject phoneObject;
+	[SerializeField]
+	float phoneBobMultiplier = 0.25f;
+	[SerializeField]
+	float phoneJitterRange = 0.5f;
+	[SerializeField]
+	float phoneJitterIntensity = 0.25f;
 
-    // Internal Variables --------------
-    bool isRunning = false;
+	// Internal Variables --------------
+	bool isRunning = false;
 	bool isMoving = false;
-    bool isGrounded;
-    bool isZoomed;
-    float currentZoomTime = 0f;
+	bool isGrounded;
+	bool isZoomed;
+	float currentZoomTime = 0f;
 	float currentBobIntensity = 0f;
-    float xRotation = 0;
-    Vector3 velocity;
+	float currentPhoneJitter = 0f;
+	float xRotation = 0;
+	Vector3 velocity;
 	Vector3 cameraBase;
-    float gravity = -9.81f;
-    float groundDistance = 0.1f;
+	float gravity = -9.81f;
+	float groundDistance = 0.1f;
 
-    // Component References ------------
-    CharacterController controller;
-    Camera mainCam;
+	// Component References ------------
+	CharacterController controller;
+	PhoneController phone;
+	Camera mainCam;
 
 
-    void Start()
-    {
-        mainCam = GetComponentInChildren<Camera>();
-        controller = GetComponent<CharacterController>();
+	void Start()
+	{
+		mainCam = GetComponentInChildren<Camera>();
+		controller = GetComponent<CharacterController>();
+		phone = GetComponentInChildren<PhoneController>();
 		cameraBase = mainCam.transform.localPosition;
 
-        Cursor.lockState = CursorLockMode.Locked;
-    }
+		Cursor.lockState = CursorLockMode.Locked;
+	}
 
-    void Update()
+	void Update()
 	{
 		Move();
-		HeadBob();
 		Look();
+		HeadBob();
 		Zoom();
 	}
 
@@ -116,12 +129,24 @@ public class FPSController : MonoBehaviour
 	{
 		if (isMoving)
 		{
+			// Head Bob
 			if (currentBobIntensity >= bobRange || currentBobIntensity <= -bobRange)
 				bobIntensity = -bobIntensity;
 
 			currentBobIntensity += bobIntensity * Time.deltaTime * (isRunning ? runBobMultiplier : 1);
+			currentBobIntensity = Mathf.Clamp(currentBobIntensity, -bobRange, bobRange);
 			mainCam.transform.localPosition = new Vector3(0, currentBobIntensity, 0) + cameraBase;
+
+			// Phone Jitter
+			if (currentPhoneJitter >= phoneJitterRange || currentPhoneJitter <= -phoneJitterRange)
+				phoneJitterIntensity = -phoneJitterIntensity;
+
+			currentPhoneJitter += phoneJitterIntensity * Time.deltaTime * (isRunning ? runBobMultiplier : 1);
+			currentPhoneJitter = Mathf.Clamp(currentPhoneJitter, -phoneJitterRange, phoneJitterRange);
+			phone.ViewShift(xRotation, currentPhoneJitter, currentBobIntensity * phoneBobMultiplier);
 		}
+		else
+			phone.ViewShift(xRotation, 0, 0);
 	}
 
 	private void Look()
@@ -132,7 +157,7 @@ public class FPSController : MonoBehaviour
 		xRotation -= mouseY;
 		xRotation = Mathf.Clamp(xRotation, -45, 30);
 
-		mainCam.transform.localRotation = Quaternion.Euler(xRotation, 0, 0);
+		headObject.transform.localRotation = Quaternion.Euler(xRotation, 0, 0);
 
 		transform.Rotate(Vector3.up * mouseX);
 	}
