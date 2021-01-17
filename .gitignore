@@ -15,3 +15,7 @@ obj/
 *.renderTexture
 *.png
 *.suo
+Assets/Free_SpeedTrees/
+Assets/Samples/Terrain Tools/
+EasyRoads3Dv3/
+Assets/EasyRoads3D/
