@@ -20,3 +20,5 @@ Assets/Samples/Terrain Tools/
 EasyRoads3Dv3/
 Assets/EasyRoads3D/
 *.tga
+.vs/
+*.prefab
