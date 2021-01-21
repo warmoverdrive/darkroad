@@ -26,6 +26,7 @@ public class PhoneController : MonoBehaviour
 	// Component References ------------
 	PhoneOS phoneOS;
 	Light flashlight;
+	PostProcessFX ppFX;
 
 	// Internal Variables --------------
 	bool lightOn = false;
@@ -39,6 +40,7 @@ public class PhoneController : MonoBehaviour
 	{
 		phoneOS = FindObjectOfType<PhoneOS>();
 		flashlight = GetComponentInChildren<Light>();
+		ppFX = FindObjectOfType<PostProcessFX>();
 	}
 
 	void Update()
@@ -108,6 +110,9 @@ public class PhoneController : MonoBehaviour
 		transform.localPosition = Vector3.Lerp(restPostion, menuPosition, currentTransitionTime / menuTransitionTime);
 		transform.localRotation = Quaternion.Lerp(
 			Quaternion.Euler(restRot), Quaternion.Euler(menuRot), currentTransitionTime / menuTransitionTime);
+
+		// update Depth of Field
+		ppFX.LerpFocalLength(currentTransitionTime / menuTransitionTime);
 
 		// update current base pos for headbob + jitter
 		currentBasePos = transform.localPosition;

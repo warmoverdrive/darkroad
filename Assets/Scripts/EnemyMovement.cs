@@ -20,6 +20,12 @@ public class EnemyMovement : MonoBehaviour
 
     public void SetTarget(Transform newTarget) => target = newTarget;
 
+    public bool HasTarget()
+	{
+        if (target) return true;
+        else return false;
+	}
+
     // Update is called once per frame
     void Update()
 	{

@@ -25,9 +25,9 @@ public class EnemyTrigger : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, triggerRange);
 	}
 
-	void Update()
+	void FixedUpdate()
 	{
-		currentTimer += Time.deltaTime;
+		currentTimer += Time.fixedDeltaTime;
 
 		if (currentTimer >= triggerTimer)
 		{
@@ -42,7 +42,8 @@ public class EnemyTrigger : MonoBehaviour
 
 		if (hits.Length != 0)
 			foreach (var hit in hits)
-				movement.SetTarget(hit.transform);
+				if(!movement.HasTarget())
+					movement.SetTarget(hit.transform);
 		else movement.SetTarget(null);
 	}
 }
