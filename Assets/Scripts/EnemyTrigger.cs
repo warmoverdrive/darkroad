@@ -41,9 +41,11 @@ public class EnemyTrigger : MonoBehaviour
 		Collider[] hits = Physics.OverlapSphere(transform.position, triggerRange, playerMask);
 
 		if (hits.Length != 0)
+		{
 			foreach (var hit in hits)
 				if(!movement.HasTarget())
 					movement.SetTarget(hit.transform);
+		}
 		else movement.SetTarget(null);
 	}
 }
