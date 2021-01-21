@@ -5,7 +5,9 @@ using UnityEngine;
 public class EnemyMovement : MonoBehaviour
 {
     [SerializeField]
-    Transform player;
+    Transform eyes;
+    [SerializeField]
+    Transform target;
     [SerializeField]
     float moveSpeed = 5f;
     Rigidbody rb;
@@ -16,9 +18,18 @@ public class EnemyMovement : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
+    public void SetTarget(Transform newTarget) => target = newTarget;
+
     // Update is called once per frame
     void Update()
-    {
-        rb.MovePosition(Vector3.MoveTowards(transform.position, player.position, moveSpeed * Time.deltaTime));
-    }
+	{
+        if (target)
+		    MoveTowardsTarget();
+	}
+
+	private void MoveTowardsTarget()
+	{
+	    rb.MovePosition(Vector3.MoveTowards(transform.position, target.position, moveSpeed * Time.deltaTime));
+		eyes.LookAt(target);
+	}
 }
