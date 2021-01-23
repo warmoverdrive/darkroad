@@ -29,12 +29,14 @@ public class PhoneController : MonoBehaviour
 	PostProcessFX ppFX;
 
 	// Internal Variables --------------
-	bool lightOn = false;
+	bool lightOn = true;
 	bool inRestPos = true;
 	public Vector3 currentBasePos;
 	Vector3 startPos;
 
 	float currentTransitionTime = 0f;
+
+	public bool IsLightOn() => lightOn;
 
 	void Start()
 	{
