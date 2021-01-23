@@ -46,7 +46,15 @@ public class PhoneController : MonoBehaviour
 	void Update()
 	{
 		Flashlight();
+		ScreenToggle();
 		StateSwitch();
+	}
+
+	void ScreenToggle() 
+	{
+		if (phoneOS.IsDead()) return;
+		if (Input.GetButtonDown("Screen"))
+			phoneOS.ToggleScreen();
 	}
 
 	// this feels like spaghetti code
@@ -97,7 +105,7 @@ public class PhoneController : MonoBehaviour
 			lightOn = false;
 			return;
 		}
-		if (Input.GetButtonDown("Left Click"))
+		if (Input.GetButtonDown("Flashlight"))
 		{
 			lightOn = !lightOn;
 			phoneOS.ToggleLight();

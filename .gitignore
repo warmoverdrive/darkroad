@@ -22,3 +22,7 @@ Assets/EasyRoads3D/
 *.tga
 .vs/
 *.prefab
+*.exr
+*.lighting
+*.fbx
+*.blend1

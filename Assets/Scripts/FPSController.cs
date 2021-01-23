@@ -83,10 +83,7 @@ public class FPSController : MonoBehaviour
 
 	private void Zoom()
 	{
-		if (Input.GetButtonDown("Right Click"))
-			isZoomed = true;
-		else if (Input.GetButtonUp("Right Click"))
-			isZoomed = false;
+		isZoomed = Input.GetButton("Middle Click") ? true : false;
 
 		if (isZoomed && currentZoomTime < zoomTime)
 		{
