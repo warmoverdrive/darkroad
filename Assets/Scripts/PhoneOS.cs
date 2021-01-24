@@ -7,38 +7,53 @@ public class PhoneOS : MonoBehaviour
 	[Header("OS Properties")]
 	[SerializeField]
 	float batteryMax = 100f;
+	[Header("Operation Drain Rates")]
 	[SerializeField]
-	float batteryDrainRate = 1f;
+	float baselineDrain = 0.1f;
+	[SerializeField]
+	float flashlightDrain = 2f;
+	[SerializeField]
+	float screenDrain = 0.5f;
 	[Header("OS Screen Objects")]
 	[SerializeField]
 	Image offScreen;
 
+	public float currentBatteryDrainRate = 0f;
 	public float currentBattery;
 
-	bool isActive = true;
 	bool isDead = false;
+	bool isFlashlight = true;
+	bool isScreenOn = true;
 
 	BatteryManager batteryManager;
+	//TEMPORARY
+	Text statusText;
 
 	private void Start()
 	{
 		batteryManager = GetComponentInChildren<BatteryManager>();
 		currentBattery = batteryMax;
+		statusText = GetComponentInChildren<Text>();
 	}
 
 	private void Update()
 	{
-		if (isActive)
-			DrainBattery();
 		if (isDead)
+		{
 			Destroy(GetComponentInChildren<Text>());
+			return;
+		}
+
+		DrainBattery();
 	}
 
 	public bool IsDead() => isDead;
 
 	private void DrainBattery()
 	{
-		currentBattery -= batteryDrainRate * Time.deltaTime;
+		CalculateDrainAmount();
+
+		currentBattery -= currentBatteryDrainRate * Time.deltaTime;
 		currentBattery = Mathf.Clamp(currentBattery, 0, batteryMax);
 
 		if (currentBattery <= 0)
@@ -58,11 +73,24 @@ public class PhoneOS : MonoBehaviour
 			batteryManager.ChangeBatteryState(BatteryManager.BatteryState.midHigh);
 	}
 
-	public void ToggleLight()
+	private void CalculateDrainAmount()
 	{
-		// TODO, make this check for activity, IE script a toggle for turning the screen off
-		// so that we don't get out of sync calls
-		offScreen.gameObject.SetActive(!offScreen.gameObject.activeSelf);
-		isActive = !isActive;
+		currentBatteryDrainRate = baselineDrain;
+		currentBatteryDrainRate += isFlashlight ? flashlightDrain : 0;
+		currentBatteryDrainRate += isScreenOn ? screenDrain : 0;
+	}
+
+	public void ToggleLight() 
+	{ 
+		isFlashlight = !isFlashlight;
+
+		statusText.text = isFlashlight ? "Flashlight ON" : "Flashlight OFF";
+	}
+	
+	public void ToggleScreen()
+	{
+		isScreenOn = !isScreenOn;
+
+		offScreen.gameObject.SetActive(isScreenOn ? false : true);
 	}
 }

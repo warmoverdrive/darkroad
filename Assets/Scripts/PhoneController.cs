@@ -26,25 +26,42 @@ public class PhoneController : MonoBehaviour
 	// Component References ------------
 	PhoneOS phoneOS;
 	Light flashlight;
+	PostProcessFX ppFX;
+	PlayerDanger danger;
 
 	// Internal Variables --------------
-	bool lightOn = false;
+	bool lightOn = true;
 	bool inRestPos = true;
 	public Vector3 currentBasePos;
 	Vector3 startPos;
 
 	float currentTransitionTime = 0f;
 
+	public bool IsLightOn() => lightOn;
+
 	void Start()
 	{
 		phoneOS = FindObjectOfType<PhoneOS>();
 		flashlight = GetComponentInChildren<Light>();
+		ppFX = FindObjectOfType<PostProcessFX>();
+		danger = GetComponentInParent<PlayerDanger>();
 	}
 
 	void Update()
 	{
+		if (danger.isDead)
+			return;
+
 		Flashlight();
+		ScreenToggle();
 		StateSwitch();
+	}
+
+	void ScreenToggle() 
+	{
+		if (phoneOS.IsDead()) return;
+		if (Input.GetButtonDown("Screen"))
+			phoneOS.ToggleScreen();
 	}
 
 	// this feels like spaghetti code
@@ -95,7 +112,7 @@ public class PhoneController : MonoBehaviour
 			lightOn = false;
 			return;
 		}
-		if (Input.GetButtonDown("Left Click"))
+		if (Input.GetButtonDown("Flashlight"))
 		{
 			lightOn = !lightOn;
 			phoneOS.ToggleLight();
@@ -108,6 +125,9 @@ public class PhoneController : MonoBehaviour
 		transform.localPosition = Vector3.Lerp(restPostion, menuPosition, currentTransitionTime / menuTransitionTime);
 		transform.localRotation = Quaternion.Lerp(
 			Quaternion.Euler(restRot), Quaternion.Euler(menuRot), currentTransitionTime / menuTransitionTime);
+
+		// update Depth of Field
+		ppFX.LerpFocalLength(currentTransitionTime / menuTransitionTime);
 
 		// update current base pos for headbob + jitter
 		currentBasePos = transform.localPosition;
