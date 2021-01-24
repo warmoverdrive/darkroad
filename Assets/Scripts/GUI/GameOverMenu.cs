@@ -31,9 +31,9 @@ public class GameOverMenu : MonoBehaviour
 	{
         do
         {
-            float panelAlpha = Mathf.Lerp(0f, 1f, currentTransitionTime += Time.deltaTime / transitionTime);
+            float panelAlpha = Mathf.Lerp(0f, 1f, (currentTransitionTime += Time.deltaTime) / transitionTime);
             float textAlpha = (currentTransitionTime < transitionTime / 2) ?
-                0f : Mathf.Lerp(0f, 1f, textTransitionTime += Time.deltaTime / (transitionTime / 2));
+                0f : Mathf.Lerp(0f, 1f, (textTransitionTime += Time.deltaTime) / (transitionTime / 2));
             panel.color = new Color(panel.color.r, panel.color.g, panel.color.b, panelAlpha);
             text.color = new Color(text.color.r, text.color.g, text.color.b, textAlpha);
             yield return new WaitForEndOfFrame();
