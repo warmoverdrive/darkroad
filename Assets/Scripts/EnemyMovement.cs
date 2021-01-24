@@ -11,11 +11,13 @@ public class EnemyMovement : MonoBehaviour
     [SerializeField]
     float moveSpeed = 5f;
     Rigidbody rb;
+    EnemyHealth health;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        health = GetComponent<EnemyHealth>();
     }
 
     public void SetTarget(Transform newTarget) => target = newTarget;
@@ -29,6 +31,7 @@ public class EnemyMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
 	{
+        if (health.isDead) return;
         if (target)
 		    MoveTowardsTarget();
 	}

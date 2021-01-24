@@ -8,7 +8,11 @@ public class PlayerDangerDetector : MonoBehaviour
 	[SerializeField]
 	float dangerDetectRange = 15f;
 	[SerializeField]
+	float recoverySpeed = 1f;
+	[SerializeField]
 	LayerMask dangerMask;
+
+	float currentShortestDistance;
 
 	PostProcessFX ppFX;
 
@@ -16,6 +20,7 @@ public class PlayerDangerDetector : MonoBehaviour
 	void Start()
 	{
 		ppFX = FindObjectOfType<PostProcessFX>();
+		currentShortestDistance = dangerDetectRange;
 	}
 
 	// Update is called once per frame
@@ -26,17 +31,21 @@ public class PlayerDangerDetector : MonoBehaviour
 
 	private void DetectDanger()
 	{
-		float shortestDistance = dangerDetectRange;
+		float lastShortestDistance = currentShortestDistance;
 
 		Collider[] hits = Physics.OverlapSphere(transform.position, dangerDetectRange, dangerMask);
 
 		if (hits.Length != 0)
 			foreach (var hit in hits)
 			{
-				if (Vector3.Distance(transform.position, hit.transform.position)-1 < shortestDistance)
-					shortestDistance = Vector3.Distance(transform.position, hit.transform.position)-1;
+				if (Vector3.Distance(transform.position, hit.transform.position)-1 < currentShortestDistance)
+					currentShortestDistance = Vector3.Distance(transform.position, hit.transform.position)-1;
 			}
 
-		ppFX.LerpDanger(shortestDistance / dangerDetectRange);
+		if (currentShortestDistance == lastShortestDistance)
+			currentShortestDistance += recoverySpeed * Time.deltaTime;
+		currentShortestDistance = Mathf.Clamp(currentShortestDistance, 0, dangerDetectRange);
+
+		ppFX.LerpDanger(currentShortestDistance / dangerDetectRange);
 	}
 }
