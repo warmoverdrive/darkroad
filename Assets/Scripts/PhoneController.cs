@@ -27,6 +27,7 @@ public class PhoneController : MonoBehaviour
 	PhoneOS phoneOS;
 	Light flashlight;
 	PostProcessFX ppFX;
+	PlayerDanger danger;
 
 	// Internal Variables --------------
 	bool lightOn = true;
@@ -43,10 +44,14 @@ public class PhoneController : MonoBehaviour
 		phoneOS = FindObjectOfType<PhoneOS>();
 		flashlight = GetComponentInChildren<Light>();
 		ppFX = FindObjectOfType<PostProcessFX>();
+		danger = GetComponentInParent<PlayerDanger>();
 	}
 
 	void Update()
 	{
+		if (danger.isDead)
+			return;
+
 		Flashlight();
 		ScreenToggle();
 		StateSwitch();

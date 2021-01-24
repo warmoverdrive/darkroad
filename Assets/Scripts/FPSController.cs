@@ -61,6 +61,7 @@ public class FPSController : MonoBehaviour
 	CharacterController controller;
 	PhoneController phone;
 	Camera mainCam;
+	PlayerDanger danger;
 
 
 	void Start()
@@ -68,6 +69,7 @@ public class FPSController : MonoBehaviour
 		mainCam = GetComponentInChildren<Camera>();
 		controller = GetComponent<CharacterController>();
 		phone = GetComponentInChildren<PhoneController>();
+		danger = GetComponent<PlayerDanger>();
 		cameraBase = mainCam.transform.localPosition;
 
 		Cursor.lockState = CursorLockMode.Locked;
@@ -75,6 +77,7 @@ public class FPSController : MonoBehaviour
 
 	void Update()
 	{
+		if (danger.isDead) return;
 		Move();
 		Look();
 		HeadBob();

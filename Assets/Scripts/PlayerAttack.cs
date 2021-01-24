@@ -15,15 +15,17 @@ public class PlayerAttack : MonoBehaviour
     LayerMask enemyMask;
 
     PhoneController phoneController;
+	PlayerDanger danger;
 
     void Start()
     {
         phoneController = GetComponentInChildren<PhoneController>();
+		danger = GetComponent<PlayerDanger>();
     }
 
     void Update()
 	{
-		if (!phoneController.IsLightOn()) return;
+		if (!phoneController.IsLightOn() || danger.isDead) return;
 
 		ShineLight();
 	}

@@ -3,10 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerDangerDetector : MonoBehaviour
+public class PlayerDanger : MonoBehaviour
 {
 	[SerializeField]
 	float dangerDetectRange = 15f;
+	[SerializeField]
+	float fatalRange = 1f;
 	[SerializeField]
 	float recoverySpeed = 1f;
 	[SerializeField]
@@ -14,19 +16,41 @@ public class PlayerDangerDetector : MonoBehaviour
 
 	float currentShortestDistance;
 
+	public bool isDead = false;
+
 	PostProcessFX ppFX;
+	Rigidbody rb;
+	CapsuleCollider capsuleCollider;
+	CharacterController controller;
 
 	// Start is called before the first frame update
 	void Start()
 	{
 		ppFX = FindObjectOfType<PostProcessFX>();
+		rb = GetComponent<Rigidbody>();
+		capsuleCollider = GetComponent<CapsuleCollider>();
+		controller = GetComponent<CharacterController>();
 		currentShortestDistance = dangerDetectRange;
 	}
 
 	// Update is called once per frame
 	void FixedUpdate()
 	{
+		if (isDead) return;
+
 		DetectDanger();
+
+		if (currentShortestDistance <= fatalRange)
+			KillPlayer();
+	}
+
+	void KillPlayer()
+	{
+		isDead = true;
+		capsuleCollider.enabled = true;
+		controller.enabled = false;
+		rb.isKinematic = false;
+		FindObjectOfType<GameOverMenu>().StartCoroutine("FadeInGameOver");
 	}
 
 	private void DetectDanger()

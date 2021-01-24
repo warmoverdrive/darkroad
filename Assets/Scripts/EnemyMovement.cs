@@ -10,8 +10,10 @@ public class EnemyMovement : MonoBehaviour
     Transform target;
     [SerializeField]
     float moveSpeed = 5f;
+
     Rigidbody rb;
     EnemyHealth health;
+    PlayerDanger playerDanger;
 
     // Start is called before the first frame update
     void Start()
@@ -20,7 +22,12 @@ public class EnemyMovement : MonoBehaviour
         health = GetComponent<EnemyHealth>();
     }
 
-    public void SetTarget(Transform newTarget) => target = newTarget;
+    public void SetTarget(Transform newTarget)
+    {
+        if (newTarget.GetComponent<PlayerDanger>())
+            playerDanger = newTarget.GetComponent<PlayerDanger>();
+        target = newTarget;
+    }
 
     public bool HasTarget()
 	{
@@ -38,6 +45,8 @@ public class EnemyMovement : MonoBehaviour
 
 	private void MoveTowardsTarget()
 	{
+        if (playerDanger == null || playerDanger.isDead == true)
+            return;
 	    rb.MovePosition(Vector3.MoveTowards(transform.position, target.position, moveSpeed * Time.deltaTime));
 		eyes.LookAt(target);
 	}
