@@ -2,8 +2,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Handles GUI battery elements for the PhoneOS UI.
+/// </summary>
 public class BatteryManager : MonoBehaviour
 {
+	public enum BatteryState { high, midHigh, mid, midLow, low, dead };
+
 	// Config Params ----------------------
 	[SerializeField]
 	Image lowImage, midLowImage, midImage, midHighImage, highImage;
@@ -16,25 +21,34 @@ public class BatteryManager : MonoBehaviour
 	[SerializeField]
 	float deadFlickerSpeed = 0.25f;
 
-	public enum BatteryState { high, midHigh, mid, midLow, low, dead };
-
 	// Internal Vars ----------------------
-	Image thisImage;
 	BatteryState batteryState = BatteryState.high;
 	bool flickerOn = true;
 	float currentFlickerTime = 0f;
+
+	// Component References ---------------
+	Image thisImage;
 
 	private void Start()
 	{
 		thisImage = GetComponent<Image>();
 	}
 
+	// Checks for a low battery to call the Low Power Cycle
 	void Update()
 	{
 		if (batteryState == BatteryState.low || batteryState == BatteryState.dead)
 			LowPowerCycle();
 	}
 
+	/// <summary>
+	/// Handles the GUI behavior for the battery icon based off of the input BatteryState.
+	/// <para>Only triggers a change if the passed state is different from the current state.</para>
+	/// <para>Review note -> considering all of the different pieces that need to be enabled
+	/// or disabled per state, I couldn't think of a prettier way to go about coding this logic.
+	/// It works just fine, and for such a focused script it'll do.</para>
+	/// </summary>
+	/// <param name="state">Target battery state</param>
 	public void ChangeBatteryState(BatteryState state)
 	{
 		if (batteryState != state)
@@ -106,6 +120,11 @@ public class BatteryManager : MonoBehaviour
 		}
 	}
 
+	/// <summary>
+	/// Handles the Low Power animation logic based on which low power state is active.
+	/// <para>Both states make use of the same timer variables, but the flicker speeds are
+	/// different per state. Speeds are configurable in the member variables.</para>
+	/// </summary>
 	private void LowPowerCycle()
 	{
 		if (currentFlickerTime > lowBattFlickerSpeed && batteryState == BatteryState.low)

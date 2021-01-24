@@ -4,8 +4,12 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+/// <summary>
+/// Handles Game Over GUI Elements.
+/// </summary>
 public class GameOverMenu : MonoBehaviour
 {
+    // Config Params ------------------
     [Header("Game Over Transition Settings")]
     [SerializeField]
     float transitionTime = 3f;
@@ -14,7 +18,7 @@ public class GameOverMenu : MonoBehaviour
     [SerializeField]
     TextMeshProUGUI text;
 
-    // Internal Vars
+    // Internal Vars ------------------
     float currentTransitionTime = 0f;
     float textTransitionTime = 0f;
 

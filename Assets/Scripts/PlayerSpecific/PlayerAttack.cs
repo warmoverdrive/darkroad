@@ -2,9 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Handles Player Flashlight attack and applying damage to enemies
+/// it contacts.
+/// </summary>
 public class PlayerAttack : MonoBehaviour
 {
-    [Header("Attack Properties")]
+	// Config Parameters ---------------
+	[Header("Attack Properties")]
     [SerializeField]
     float damageRange = 25f;
     [SerializeField]
@@ -14,7 +19,8 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField]
     LayerMask enemyMask;
 
-    PhoneController phoneController;
+	// Component References ------------
+	PhoneController phoneController;
 	PlayerDanger danger;
 
     void Start()
@@ -23,6 +29,8 @@ public class PlayerAttack : MonoBehaviour
 		danger = GetComponent<PlayerDanger>();
     }
 
+	// If the light's off or player is dead, do nothing,
+	// otherwise make an attack check
     void Update()
 	{
 		if (!phoneController.IsLightOn() || danger.isDead) return;
@@ -30,6 +38,12 @@ public class PlayerAttack : MonoBehaviour
 		ShineLight();
 	}
 
+	/// <summary>
+	/// <para>Cases a sphere damageRange distance from the Phone Controllers transform down, 
+	/// with a Layer Mask for filtering results to only enemies. For each enemy hit, 
+	/// apply damage using the targets DamageEnemy method, passing in DPS (damage per second) 
+	/// multiplied by delta time.</para>
+	/// </summary>
 	private void ShineLight()
 	{
 		// "-phoneController.transform.up" is a hacky way of shooting the ray down, 

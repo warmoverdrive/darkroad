@@ -2,6 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Handles Phone Object transform, and checks user input related to the Phone.
+/// <para>TODO: Extend input detection for future PhoneOS controls</para>
+/// </summary>
 public class PhoneController : MonoBehaviour
 {
 	// Config Params ------------------
@@ -23,20 +27,23 @@ public class PhoneController : MonoBehaviour
 	[SerializeField]
 	float menuLookInfluence = 0.5f;
 
+	// Internal Variables --------------
+	bool lightOn = true;
+	bool inRestPos = true;
+	public Vector3 currentBasePos;
+	Vector3 startPos;
+	float currentTransitionTime = 0f;
+
 	// Component References ------------
 	PhoneOS phoneOS;
 	Light flashlight;
 	PostProcessFX ppFX;
 	PlayerDanger danger;
 
-	// Internal Variables --------------
-	bool lightOn = true;
-	bool inRestPos = true;
-	public Vector3 currentBasePos;
-	Vector3 startPos;
-
-	float currentTransitionTime = 0f;
-
+	/// <summary>
+	/// Getter for flashlight status.
+	/// </summary>
+	/// <returns>true if light is on</returns>
 	public bool IsLightOn() => lightOn;
 
 	void Start()
@@ -47,6 +54,7 @@ public class PhoneController : MonoBehaviour
 		danger = GetComponentInParent<PlayerDanger>();
 	}
 
+	// Runs phone input methods if player is not dead.
 	void Update()
 	{
 		if (danger.isDead)
@@ -57,6 +65,11 @@ public class PhoneController : MonoBehaviour
 		StateSwitch();
 	}
 
+	/// <summary>
+	/// Checks for input to toggle the screen, and calls the ToggleScreen method
+	/// from the PhoneOS.
+	/// <para>Early return if phone is dead.</para>
+	/// </summary>
 	void ScreenToggle() 
 	{
 		if (phoneOS.IsDead()) return;
@@ -64,9 +77,20 @@ public class PhoneController : MonoBehaviour
 			phoneOS.ToggleScreen();
 	}
 
-	// this feels like spaghetti code
+	/// <summary>
+	/// Handles the phone bobbing, as well as offset movement while in the
+	/// menu, for looking up and down at the screen when its close to you.
+	/// <para>This code could be improved, but it works well enough for now
+	/// and I can't be bothered to overhaul it for what is essentially a low
+	/// priority feature.</para>
+	/// </summary>
+	/// <param name="viewAngle">Angle of camera view relative to phone screen</param>
+	/// <param name="xJitterValue">X orientation jitter value to add to local transform</param>
+	/// <param name="yBobValue">Y value orientation bob value to add to local transform</param>
 	public void ViewShift(float viewAngle, float xJitterValue, float yBobValue)
 	{
+		// this feels like spaghetti code
+
 		// this is literally here to preserve positioning of the phone when not in the menu
 		// because the menu offselt calculation assumes the phone needs to stay at base y = 0
 		// which isnt the case when we arent in the menu
@@ -82,6 +106,18 @@ public class PhoneController : MonoBehaviour
 
 	}
 
+	/// <summary>
+	/// Handles hand states for where the phone is located.
+	/// <para>Toggles between "rest" position and "menu" position, calling
+	/// Linear Interpolation methods to smoothly transition between them.
+	/// Uses CurrentTransitionTime like a percentage between the to positions,
+	/// subtracting from CurrentTransitionTime to return it to resting position,
+	/// and adding to send it to menu position. Clamps CurrentTransitionTime to
+	/// avoid weird edge cases relating to adding delta time.</para>
+	/// <para>startPos variable is used to handle interpolating to a new location if
+	/// transition is stopped or switched midway, in order to prevent jitter/bob from
+	/// completely breaking the animation.</para>
+	/// </summary>
 	private void StateSwitch()
 	{
 		if (Input.GetButtonDown("Menu"))
@@ -104,6 +140,13 @@ public class PhoneController : MonoBehaviour
 		currentTransitionTime = Mathf.Clamp(currentTransitionTime, 0, menuTransitionTime);
 	}
 
+	/// <summary>
+	/// Handles reading input for toggling the flashlight object when the phone 
+	/// is not dead.
+	/// <para>Does an internal check for death, and will toggle the flashlight
+	/// off if the phoneOS returns dead. Will also send a message to the phoneOS
+	/// regarding flashlight state.</para>
+	/// </summary>
 	private void Flashlight()
 	{
 		if (phoneOS.IsDead())
@@ -120,6 +163,12 @@ public class PhoneController : MonoBehaviour
 		}
 	}
 
+	/// <summary>
+	/// Handles the Linear Interpolation between phone positions.
+	/// <para>Also updates Post Processing FX for depth of field changes, based on Lerp t value.</para>
+	/// </summary>
+	/// <param name="restPostion">Rest position for phone</param>
+	/// <param name="menuPosition">Menu position for phone</param>
 	private void PhoneStateLerp(Vector3 restPostion, Vector3 menuPosition)
 	{
 		transform.localPosition = Vector3.Lerp(restPostion, menuPosition, currentTransitionTime / menuTransitionTime);
