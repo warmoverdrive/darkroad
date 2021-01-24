@@ -34,7 +34,7 @@ public class EnemyMovement : MonoBehaviour
     /// <param name="newTarget">Transform of the target Player</param>
     public void SetTarget(Transform newTarget)
     {
-        if (newTarget.GetComponent<PlayerDanger>())
+        if (newTarget.gameObject.GetComponent<PlayerDanger>())
             playerDanger = newTarget.GetComponent<PlayerDanger>();
         target = newTarget;
     }
