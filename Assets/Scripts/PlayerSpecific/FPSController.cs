@@ -2,9 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Handles FPS control for a player. Features:
+/// <list type="bullet">
+/// <item>Movement and Sprint</item>
+/// <item>Mouse Look</item>
+/// <item>Head Bob</item>
+/// <item>FOV Zoom</item>
+/// </list>
+/// </summary>
 public class FPSController : MonoBehaviour
 {
-	// Parameters ----------------------
+	// Config Parameters ---------------
 	[Header("Movement")]
 	[SerializeField]
 	float moveSpeed = 2;
@@ -64,6 +73,7 @@ public class FPSController : MonoBehaviour
 	PlayerDanger danger;
 
 
+	// Hooks component references and locks the cursor.
 	void Start()
 	{
 		mainCam = GetComponentInChildren<Camera>();
@@ -75,6 +85,7 @@ public class FPSController : MonoBehaviour
 		Cursor.lockState = CursorLockMode.Locked;
 	}
 
+	// Checks if dead before processing input methods
 	void Update()
 	{
 		if (danger.isDead) return;
@@ -84,6 +95,11 @@ public class FPSController : MonoBehaviour
 		Zoom();
 	}
 
+	/// <summary>
+	/// Handles view zoom.
+	/// <para>Checks for input, and linearly interpolates between base camera FOV
+	/// to zoom camera FOV based on input status.</para>
+	/// </summary>
 	private void Zoom()
 	{
 		isZoomed = Input.GetButton("Middle Click") ? true : false;
@@ -100,6 +116,15 @@ public class FPSController : MonoBehaviour
 		}
 	}
 
+	/// <summary>
+	/// Handles player movement and sprint checks.
+	/// <para>Checks for running input, and then for Horizontal and Vertical
+	/// axis values. Uses the CharacterControler components Move method to 
+	/// tranlate the player.</para>
+	/// <para>This method also has leftover gravity checks that are beyond
+	/// the scope of what we need for this project but it does help handle
+	/// more steep terrain in a "realistic" fashion.</para>
+	/// </summary>
 	private void Move()
 	{
 		isRunning = Input.GetButton("Run");
@@ -125,6 +150,14 @@ public class FPSController : MonoBehaviour
 		controller.Move(velocity * Time.deltaTime);
 	}
 
+	/// <summary>
+	/// Handles Head and Phone Bob calculations based on movement and speed.
+	/// <para>Effectively does a linear interpolation between positive- and negative-bob values
+	/// over time multiplied by intensity. This is then applied to a lesser degree to the phone's
+	/// translation by way of passing calculated jitter values to the PhoneController ViewShift
+	/// methond.</para>
+	/// <para>Its a bit janky but it works well enough.</para>
+	/// </summary>
 	private void HeadBob()
 	{
 		if (isMoving)
@@ -149,6 +182,11 @@ public class FPSController : MonoBehaviour
 			phone.ViewShift(xRotation, 0, 0);
 	}
 
+	/// <summary>
+	/// Handles mouse look, clamping X roation (up and down) to reasonable values.
+	/// <para>TODO: Rework the clamp values, since the placeholder player model
+	/// has been removed, and those values were based on that model.</para>
+	/// </summary>
 	private void Look()
 	{
 		float mouseX = Input.GetAxis("Mouse X") * viewSensitivity * Time.deltaTime;
