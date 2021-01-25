@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// Handles FPS control for a player. Features:
 /// <list type="bullet">
-/// <item>Movement and Sprint</item>
+/// <item>Movement and Sprint w/Stamina</item>
 /// <item>Mouse Look</item>
 /// <item>Head Bob</item>
 /// <item>FOV Zoom</item>
@@ -19,6 +19,14 @@ public class FPSController : MonoBehaviour
 	float moveSpeed = 2;
 	[SerializeField]
 	float runSpeed = 5;
+	[SerializeField]
+	float staminaMax = 10f;
+	[SerializeField]
+	float staminaMin = 2f;
+	[SerializeField]
+	float staminaDPS = 1f;
+	[SerializeField]
+	float staminaRegenPS = 1f;
 	[SerializeField]
 	float mass = 2;
 	[SerializeField]
@@ -57,6 +65,8 @@ public class FPSController : MonoBehaviour
 	bool isMoving = false;
 	bool isGrounded;
 	bool isZoomed;
+	// this is public for testing 
+	public float currentStamina;
 	float currentZoomTime = 0f;
 	float currentBobIntensity = 0f;
 	float currentPhoneJitter = 0f;
@@ -81,6 +91,7 @@ public class FPSController : MonoBehaviour
 		phone = GetComponentInChildren<PhoneController>();
 		danger = GetComponent<PlayerDanger>();
 		cameraBase = mainCam.transform.localPosition;
+		currentStamina = staminaMax;
 
 		Cursor.lockState = CursorLockMode.Locked;
 	}
@@ -117,24 +128,24 @@ public class FPSController : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Handles player movement and sprint checks.
-	/// <para>Checks for running input, and then for Horizontal and Vertical
-	/// axis values. Uses the CharacterControler components Move method to 
-	/// tranlate the player.</para>
+	/// Handles player movement and calls the Sprint check.
+	/// <para>Checks for input, and then calls the Sprint method to deal with 
+	/// stamina/sprint checks. Uses the CharacterControler components Move 
+	/// method to tranlate the player.</para>
 	/// <para>This method also has leftover gravity checks that are beyond
 	/// the scope of what we need for this project but it does help handle
 	/// more steep terrain in a "realistic" fashion.</para>
 	/// </summary>
 	private void Move()
 	{
-		isRunning = Input.GetButton("Run");
-
 		float x = Input.GetAxis("Horizontal");
 		float z = Input.GetAxis("Vertical");
 
 		if (x != 0 || z != 0)
 			isMoving = true;
 		else isMoving = false;
+
+		Sprint();
 
 		Vector3 move = transform.right * x + transform.forward * z;
 		controller.Move(move * (isRunning ? runSpeed : moveSpeed) * Time.deltaTime);
@@ -148,6 +159,37 @@ public class FPSController : MonoBehaviour
 
 		velocity.y += gravity * mass * Time.deltaTime;
 		controller.Move(velocity * Time.deltaTime);
+	}
+
+	/// <summary>
+	/// Does input and movement checks for sprint, while managing stamina. Features
+	/// minimum stamina threshold to begin running.
+	/// <para>First checks if the Run button is down and we're moving (have input).
+	/// Then we check if we're above the current stamina minimum to run or if we're already
+	/// running. If neither are true, we can't run.</para>
+	/// <para>Second part of the method simply manipulates the current stamina based on if
+	/// we're running or not.</para>
+	/// </summary>
+	private void Sprint()
+	{
+		if (Input.GetButton("Run") && isMoving)
+		{
+			if (isRunning && currentStamina != 0)
+				isRunning = true;
+			else if (!isRunning && currentStamina > staminaMin)
+				isRunning = true;
+			else
+				isRunning = false;
+		}
+		else
+			isRunning = false;
+
+		if (isRunning)
+			currentStamina -= staminaDPS * Time.deltaTime;
+		else
+			currentStamina += staminaRegenPS * Time.deltaTime;
+
+		currentStamina = Mathf.Clamp(currentStamina, 0, staminaMax);
 	}
 
 	/// <summary>
