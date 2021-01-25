@@ -27,3 +27,5 @@ Assets/EasyRoads3D/
 *.fbx
 *.blend1
 Assets/TextMesh Pro/
+*.ttf
+*.rtf
