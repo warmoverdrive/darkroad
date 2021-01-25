@@ -20,6 +20,12 @@ public class FPSController : MonoBehaviour
 	[SerializeField]
 	float runSpeed = 5;
 	[SerializeField]
+	float mass = 2;
+	[SerializeField]
+	LayerMask groundMask;
+
+	[Header("Stamina")]
+	[SerializeField]
 	float staminaMax = 10f;
 	[SerializeField]
 	float staminaMin = 2f;
@@ -28,9 +34,7 @@ public class FPSController : MonoBehaviour
 	[SerializeField]
 	float staminaRegenPS = 1f;
 	[SerializeField]
-	float mass = 2;
-	[SerializeField]
-	LayerMask groundMask;
+	float staminaWalkPenalty = 0.5f;
 
 	[Header("View")]
 	[SerializeField]
@@ -187,7 +191,8 @@ public class FPSController : MonoBehaviour
 		if (isRunning)
 			currentStamina -= staminaDPS * Time.deltaTime;
 		else
-			currentStamina += staminaRegenPS * Time.deltaTime;
+			currentStamina += 
+				(isMoving ? staminaRegenPS * staminaWalkPenalty : staminaRegenPS) * Time.deltaTime;
 
 		currentStamina = Mathf.Clamp(currentStamina, 0, staminaMax);
 	}
